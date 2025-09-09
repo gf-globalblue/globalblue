@@ -58,3 +58,6 @@ async function require(path) {
 	}
 	return m.exports;
 }
+
+require.moduleCache = moduleCache;
+window.require = require;
