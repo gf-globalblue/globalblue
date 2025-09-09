@@ -1,3 +1,5 @@
+window.require = createModule(arguments[0]).require;
+
 const moduleCache = new Map();
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
@@ -58,6 +60,3 @@ async function require(path) {
 	}
 	return m.exports;
 }
-
-require.moduleCache = moduleCache;
-window.require = require;
