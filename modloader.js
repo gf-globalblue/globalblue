@@ -1,4 +1,4 @@
-window.require = createModule(arguments[0]).require;
+window.require = createModule(arguments[0].url).require;
 
 const moduleCache = new Map();
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
