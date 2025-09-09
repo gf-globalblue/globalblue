@@ -1,7 +1,7 @@
-window.require = createModule(arguments[0].url).require;
-
 const moduleCache = new Map();
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+
+window.require = createModule(arguments[0].url).require;
 
 const standaloneFetchBlob = async id => {
 		if (! (await indexedDB.databases()).some(db => db.name === 'BlobDB' && db.version === 1)) throw new Error('IndexedDB "BlobDB" does not not exist');
