@@ -75,27 +75,28 @@
 					if (entryHandle.kind === "directory" && thisDir.recurse) {
 						directories.push(Object.assign({}, thisDir, {path: thisDir.path + "/" + entryName, handle: entryHandle}));
 						continue;
+					} else if (entryHandle.kind === "file") {
+						if (hasFilterPattern && ! entryName.match(thisDir.pattern)) continue;
+						tasks.push(new Promise(async resolve => {
+							let blobId = thisDir.path + "/" + entryName;
+							let file = await entryHandle.getFile();
+							let meta = await BlobDB.getMeta(blobId);
+							if (!meta || meta.lastModified != file.lastModified || meta.size != file.size) {
+								console.log(`uploading ${blobId}`);
+								let content = await new Promise(resolve => {
+									let reader = new FileReader();
+									reader.onloadend = e => resolve(reader.result);
+									reader.readAsArrayBuffer(file);
+								});
+								await BlobDB.store(blobId, content, {
+									lastModified: file.lastModified,
+									size: file.size,
+									type: file.type
+								});
+							}
+							resolve();
+						}));
 					}
-					if (hasFilterPattern && ! entryName.match(this.pattern)) continue;
-					tasks.push(new Promise(async resolve => {
-						let blobId = thisDir.path + "/" + entryName;
-						let file = await entryHandle.getFile();
-						let meta = await BlobDB.getMeta(blobId);
-						if (!meta || meta.lastModified != file.lastModified || meta.size != file.size) {
-							console.log(`uploading ${blobId}`);
-							let content = await new Promise(resolve => {
-								let reader = new FileReader();
-								reader.onloadend = e => resolve(reader.result);
-								reader.readAsArrayBuffer(file);
-							});
-							await BlobDB.store(blobId, content, {
-								lastModified: file.lastModified,
-								size: file.size,
-								type: file.type
-							});
-						}
-						resolve();
-					}));
 				}
 			}
 			await Promise.all(tasks);
