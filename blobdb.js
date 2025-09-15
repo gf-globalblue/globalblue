@@ -82,7 +82,7 @@
 							let file = await entryHandle.getFile();
 							let meta = await BlobDB.getMeta(blobId);
 							if (!meta || meta.lastModified != file.lastModified || meta.size != file.size) {
-								console.log(`uploading ${blobId}`);
+								if (this.cbLog) this.cbLog(`uploading ${blobId}`);
 								let content = await new Promise(resolve => {
 									let reader = new FileReader();
 									reader.onloadend = e => resolve(reader.result);
