@@ -137,7 +137,7 @@ window.TimeSheetHelper = new (class TimeSheetHelper {
 				}
 			}
 		} else if (file.name.match(/^mytime.actions$/i)) {
-			let mtu = await require("myTimeUtil.js");
+			let mtu = await require("mytimeutil.js");
 			await mtu.importToCoredat(fileContent, this);
 		}
 		
