@@ -1,10 +1,10 @@
-//fetch("https://raw.githubusercontent.com/gf-globalblue/globalblue/refs/heads/dev/coredatHelper.js").then(async r=>(async f=>0).constructor(await r.text())(r)));
+//fetch("https://raw.githubusercontent.com/gf-globalblue/globalblue/refs/heads/dev/coredathelper.js").then(async r=>(async f=>0).constructor(await r.text())(r))
 if (! window.require) await fetch(new URL(".", arguments[0].url).href + "modloader.js").then(r=>r.text().then(t=>new Function(t)(r)));
 
 const extensions = [
-	await require("fileExtensions.js"),
-	await require("dateExtensions.js"),
-	await require("htmlExtensions.js")
+	await require("fileextensions.js"),
+	await require("dateextensions.js"),
+	await require("htmlextensions.js")
 ];
 
 window.TimeSheetHelper = new (class TimeSheetHelper {
