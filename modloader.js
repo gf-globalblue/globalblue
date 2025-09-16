@@ -1,9 +1,20 @@
 const moduleCache = new Map();
 const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
 
-window.require = createModule(arguments[0].url).require;
+const param = document.currentScript
+? {
+	baseUrl: document.currentScript.getAttribute("baseUrl"),
+	modules: Array.from(document.getElementsByTagName("require")).map(a => a.getAttribute("src"))
+}
+: {
+	baseUrl: arguments[0].url,
+	modules: Array.from(arguments).slice(1)
+}
 
-const standaloneFetchBlob = async id => {
+window.require = createModule(param.baseUrl).require;
+param.modules.reduce((p, c) => p.then(() => window.require(c)), Promise.resolve());
+
+const selfContainedFetchBlob = async id => {
 		if (! (await indexedDB.databases()).some(db => db.name === 'BlobDB' && db.version === 1)) throw new Error('IndexedDB "BlobDB" does not not exist');
 		let db = await new Promise((resolve, reject) => Object.assign(indexedDB.open("BlobDB", 1), {
 			onsuccess: evt => resolve(evt.target.result),
@@ -18,7 +29,7 @@ const standaloneFetchBlob = async id => {
 function createModule(absUrl) {
 	let module = {
 		__absUrl: absUrl,
-		__filename: new URL(absUrl).pathname.match(/\/([^\/]+)$/)[1],
+		__filename: new URL(absUrl).pathname.match(/\/([^\/]+)$/)?.at(1),
 		__dirname: new URL(".", absUrl).href,
 		exports: null
 	}
@@ -33,7 +44,7 @@ async function loadModule(m) {
 	switch (url.protocol) {
 		case "blobdb:":
 			try {
-				let buffer = await standaloneFetchBlob(url.hostname + url.pathname);
+				let buffer = await selfContainedFetchBlob(url.hostname + url.pathname);
 				if (!buffer) throw new Error("blob not found");
 				textContent = new TextDecoder().decode(buffer);
 			} catch (err) {
