@@ -40,7 +40,7 @@
 			return tx.toPromise(oncomplete);
 		}
 		
-		static async standaloneFetchBlob(id) {
+		static async selfContainedFetchBlob(id) {
 			if (! (await indexedDB.databases()).some(db => db.name === 'BlobDB' && db.version === 1)) throw new Error('IndexedDB "BlobDB" does not not exist');
 			let db = await new Promise((resolve, reject) => Object.assign(indexedDB.open("BlobDB", 1), {
 				onsuccess: evt => resolve(evt.target.result),
