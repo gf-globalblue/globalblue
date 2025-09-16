@@ -9,24 +9,28 @@ const extensions = [
 
 window.TimeSheetHelper = new (class TimeSheetHelper {
 	initialize() {
-		if (! this.grid?.entBox) {
+		if (! this.grid?.entBox || ! this.initialized) {
+			this.initialized = false;
 			this.timeSheetWindow = [window, ...Array.from(document.getElementsByTagName("iframe")).map(i => i.contentWindow)].filter(w => w.location.pathname.match(/\/Time\.aspx/))[0];
 			if (! this.timeSheetWindow) return false;
 			extensions.forEach(ex => ex.applyExtensions(this.timeSheetWindow));
 			this.grid = this.timeSheetWindow.timeGrid;
 			if (! this.grid?.entBox) return false;
 			this.absenceReasons = this.getComboValues("TimeData.AbsenceReasonNo");
+			if (! this.absenceReasons) return false;
 			const idTimeSheetHelperDropZone = "TimeSheetHelperDropZone";
 			if (!this.timeSheetWindow.document.getElementById(idTimeSheetHelperDropZone)) {
-				let dropZone = this.timeSheetWindow.timeToolbar.base.createAndAppendChildElement("div", {
+				if (this.timeSheetWindow.timeToolbar.base.children.length === 0) return false;
+				this.dropZone = this.timeSheetWindow.timeToolbar.base.createAndAppendChildElement("div", {
 					id: idTimeSheetHelperDropZone,
 					innerText: "drop file here",
 					style: "width: auto; padding-left: 10px; padding-right: 10px; background-color:white; display:flex; align-items:center; justify-content: center; margin: 4px; border-style: dashed; border-radius: 6px; border-width:1px"
 				});
-				dropZone.enableDragDropFile(this.processFile.bind(this));
+				this.dropZone.enableDragDropFile(this.processFile.bind(this));
 			}
-			return true;
+			this.initialized = true;
 		}
+		return this.initialized;
 	}
 	
 	resolveColumn(ref) {
@@ -78,12 +82,10 @@ window.TimeSheetHelper = new (class TimeSheetHelper {
 			let rowId;
 			if (emptyRows.length > 0) {
 				rowId = emptyRows[0]._id;
-				console.log(`found empty row ${rowId}`);
 			} else {
 				rowId = this.grid.uid();
 				let lastRowIndex = Math.max(...dayRows.map(row => this.grid.rowsBuffer.indexOf(row._row)), -1);
 				this.grid.addRow(rowId, [], lastRowIndex + 1);
-				console.log(`added row ${rowId} at ${lastRowIndex + 1}`);
 				let dateStr = `${date.getDate().toString().padStart(2, '0')}.${(date.getMonth() + 1).toString().padStart(2, '0')}.${date.getYear() + 1900}`;
 				this.pickCell(this.grid.rowsAr[rowId], "TimeData.Date").setValue(dateStr);
 			}
@@ -100,7 +102,9 @@ window.TimeSheetHelper = new (class TimeSheetHelper {
 	}
 	
 	getComboValues(column) {
+		if (! this.grid?.combos) return;
 		let combo = this.grid.combos[this.resolveColumn(column)];
+		if (! combo) return;
 		return combo.keys.map((k, i) => [k, combo.values[i]]);
 	}
 	
@@ -140,5 +144,13 @@ window.TimeSheetHelper = new (class TimeSheetHelper {
 	}
 });
 
-window.coredatObserver ??= new MutationObserver(document.body, evt => TimeSheetHelper.initialize());
+function autoInit() {
+	setTimeout(autoInit, TimeSheetHelper.initialize() ? 5000 : 1000);
+}
+autoInit();
+
+//if (!window.coredatObserver) {
+//	window.coredatObserver = new MutationObserver(TimeSheetHelper.initialize);
+//	window.coredatObserver.observe(document.body, { attributes: true, subtree: true });
+//}
 
