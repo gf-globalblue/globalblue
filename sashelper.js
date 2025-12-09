@@ -3,9 +3,13 @@ if (! window.require) await fetch(new URL(".", arguments[0].url).href + "modload
 
 function makeTicketsClickable() {
 	for (let tag of document.getElementsByTagName("a")) {
-		for (let k of Object.keys(tag).filter(k => k.match(/^jQuery\d+$/) && tag[k].$scope?.$parent?.$parent?.item?.sys_id)) {
-			tag.href = `/csm?id=csm_ticket&table=sn_customerservice_case&sys_id=${tag[k].$scope.$parent.$parent.item.sys_id}`;
-			tag.onclick = evt => evt.stopPropagation();
+		if (/^CS\d+$/.exec(tag.innerText)) {
+			for (let k of Object.keys(tag).filter(k => k.match(/^jQuery\d+$/) && tag[k].$scope?.$parent?.$parent?.item?.sys_id)) {
+				tag.href = `/csm?id=csm_ticket&table=sn_customerservice_case&sys_id=${tag[k].$scope.$parent.$parent.item.sys_id}`;
+				tag.style = "text-decoration: underline";
+				tag.onclick = evt => evt.stopPropagation();
+				break;
+			}
 		}
 	}
 }
