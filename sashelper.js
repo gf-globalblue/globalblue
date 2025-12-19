@@ -14,3 +14,6 @@ function makeTicketsClickable() {
 	}
 }
 makeTicketsClickable();
+
+// fix width of case display
+document.querySelectorAll('.col-md-9').forEach(e => e.style = "width: 100%");
