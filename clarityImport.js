@@ -77,7 +77,7 @@
 	}
 
 	async function waitForApplication() {
-		await retryUntil(4000, 100, () => document.getElementById("ppm_header_wait").style.display == 'none');
+		await retryUntil(20000, 100, () => document.getElementById("ppm_header_wait").style.display == 'none');
 	}
 
 	async function saveTimeSheet() {
@@ -102,7 +102,7 @@
 			}
 			
 			// wait for the timesheet period selector to show up
-			let timeSheetPeriodSelector = await retryUntil(4000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name == 'timeperiod')?.singleOrDefault());
+			let timeSheetPeriodSelector = await retryUntil(20000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name == 'timeperiod')?.singleOrDefault());
 			
 			// make sure the correct timesheet is selected
 			// parse the selectable timesheets
@@ -128,7 +128,7 @@
 			}
 			
 			// make sure the timesheet table is showing
-			let totalRows = await retryUntil(4000, 100, () => document.getElementsByTagName("tr").items().filter(e => e.className == 'total' && e.hasAttribute('data-ppm_odf_pk') && e.childElementCount > 1).singleOrDefault());
+			let totalRows = await retryUntil(20000, 100, () => document.getElementsByTagName("tr").items().filter(e => e.className == 'total' && e.hasAttribute('data-ppm_odf_pk') && e.childElementCount > 1).singleOrDefault());
 			await waitForApplication();
 			// check if the timesheet can be edited ("Add Task" button exists)
 			let addTasksButton = document.getElementsByTagName("button").items().filter(e => e.onclick?.toString().match(/submitForm.*'timeadmin\.timesheetAddTask'/i)).singleOrDefault();
@@ -145,14 +145,14 @@
 					console.log("missing project " + action.project + " / task " + action.task);
 					window.submitForm('page','timeadmin.timesheetAddTask');
 					// wait for the search form fields to show up
-					let applyFilter = await retryUntil(4000, 500, () => document.getElementsByTagName("button").items().filter(e => e.name === "applyFilter").singleOrDefault());
-					let ff_task_name = await retryUntil(4000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_task_name").singleOrDefault());
-					let ff_task_id = await retryUntil(4000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_task_id").singleOrDefault());
-					let ff_assigned = await retryUntil(4000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name === "ff_assigned").singleOrDefault());
-					let ff_task_status = await retryUntil(4000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name === "ff_task_status").singleOrDefault());
-					let ff_project_type = await retryUntil(4000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name === "ff_project_type").singleOrDefault());
-					let ff_project_name = await retryUntil(4000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_project_name").singleOrDefault());
-					let ff_project_id = await retryUntil(4000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_project_id").singleOrDefault());
+					let applyFilter = await retryUntil(20000, 500, () => document.getElementsByTagName("button").items().filter(e => e.name === "applyFilter").singleOrDefault());
+					let ff_task_name = await retryUntil(20000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_task_name").singleOrDefault());
+					let ff_task_id = await retryUntil(20000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_task_id").singleOrDefault());
+					let ff_assigned = await retryUntil(20000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name === "ff_assigned").singleOrDefault());
+					let ff_task_status = await retryUntil(20000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name === "ff_task_status").singleOrDefault());
+					let ff_project_type = await retryUntil(20000, 100, () => document.getElementsByTagName("select").items().filter(e => e.name === "ff_project_type").singleOrDefault());
+					let ff_project_name = await retryUntil(20000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_project_name").singleOrDefault());
+					let ff_project_id = await retryUntil(20000, 100, () => document.getElementsByTagName("input").items().filter(e => e.name === "ff_project_id").singleOrDefault());
 					ff_task_name.value = action.task.replace("[", "[[]").replace("]", "[]]");
 					ff_task_id.value = "";
 					ff_assigned.value = "all";
@@ -162,10 +162,10 @@
 					ff_project_id.value = "";
 					applyFilter.click();
 					// wait for the search results to be shown
-					await retryUntil(8000, 500, () => window.location.href.match(/nu#action:timeadmin.selectTimesheetTask.*ff_task_status/));
+					await retryUntil(20000, 500, () => window.location.href.match(/nu#action:timeadmin.selectTimesheetTask.*ff_task_status/));
 					await waitForApplication();
 					try {
-						let addButton = await retryUntil(500, 100, () => document.getElementsByTagName("button").items().filter(e => e.onclick?.toString().match(/submitForm.*'timeadmin\.addTimesheetTask'/i)).singleOrDefault());
+						let addButton = await retryUntil(4000, 100, () => document.getElementsByTagName("button").items().filter(e => e.onclick?.toString().match(/submitForm.*'timeadmin\.addTimesheetTask'/i)).singleOrDefault());
 						// check all tasks and add them
 						console.log("adding all found tasks");
 						window.checkAll(this,'selectTimesheetTask.xsl','selitem');
